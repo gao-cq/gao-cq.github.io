@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+		canvas{border: 1px solid red;}
+		.img{display: none;}
+		.shade{position: absolute;top:10px;left: 10px;width: 800px;height: 600px;background: rgba(0,0,0,0.3);display: none;}
+		.shade p{font-size: 50px;text-align: center;color:#fff;margin-top: 200px;}
+		.df{color:#fff;position: absolute;top:20px;left:700px;}
+	</style>
+</head>
+<body>
+	<div class="img">
+		<img src="images/bird.png" height="45" width="156" alt="">
+		<img src="images/pipeDown.png" height="420" width="52" alt="">
+		<img src="images/pipeUp.png" height="420" width="52" alt="">
+		<img src="images/land.png" height="112" width="336" alt="">
+		<img src="images/sky.png" height="600" width="800" alt="">
+	</div>
+	<div class="df">分数：<span>0</span></div>
+	<div class="shade">
+		<p>GAME OVER!</p>
+	</div>
+	<canvas id="can" width=800 height=600></canvas>
+</body>
+</html>
+
+
+<script>
+	var cvs=document.getElementById("can")
+
+	var ctx=cvs.getContext("2d")
+	var imgs=document.getElementsByClassName("img")[0]
+	var sky=imgs.getElementsByTagName("img")[4]
+	var bird=imgs.getElementsByTagName("img")[0]
+	var land=imgs.getElementsByTagName("img")[3]
+	var pipeUp=imgs.getElementsByTagName("img")[2]
+	var pipeDown=imgs.getElementsByTagName("img")[1]
+	var fs=document.getElementsByClassName("df")[0].getElementsByTagName("span")[0]
+
+	var i=0
+	var j=1
+	var speed=1.5
+	var random=0;
+	var arr=[]
+	var arr1=[]
+	var arr2=[]
+	var c=0;
+	function fn(){
+		var timer=setInterval(function(){
+			ctx.save()
+			ctx.clearRect(0, 0, cvs.width, cvs.height)
+			ctx.translate(-(i%cvs.width),0)
+			ctx.drawImage(sky,0,0,cvs.width,cvs.height)
+			ctx.drawImage(sky,cvs.width,0,cvs.width,cvs.height)
+			if(i%(cvs.width*2)==0){
+				arr1=[]
+				for(var n=0;n<5;n++){
+					arr1.push(Math.floor(Math.random()*100)+300)
+				}
+				arr2=arr.concat(arr1)
+			}
+			if(i==0){
+				arr=[]
+				for(var n=0;n<5;n++){
+					arr.push(Math.floor(Math.random()*100)+300)
+				}
+				arr1=[]
+				for(var n=0;n<5;n++){
+					arr1.push(Math.floor(Math.random()*100)+300)
+				}
+				arr2=arr.concat(arr1)
+			}
+			if(i%cvs.width==0&&i%(cvs.width*2)!=0){
+				arr=arr1
+				arr2=arr.concat(arr1)
+			}
+			for(var m=0;m<5;m++){
+				if(i<800){
+					if(m>1){
+						ctx.drawImage(pipeUp, m*160, arr[m],52,400)
+						ctx.drawImage(pipeDown, m*160, arr[m]-500,52,400)
+					}
+				}else{
+					ctx.drawImage(pipeUp, m*160, arr[m],52,400)
+					ctx.drawImage(pipeDown, m*160, arr[m]-500,52,400)
+					
+				}
+			}
+			for(var m=0;m<5;m++){
+				ctx.drawImage(pipeUp, (m+5)*160, arr1[m],52,400)
+				ctx.drawImage(pipeDown, (m+5)*160, arr1[m]-500,52,400)
+			}
+			
+			ctx.drawImage(land,0,500,cvs.width/2,100)
+			ctx.drawImage(land,cvs.width/2,500,cvs.width/2,100)
+			ctx.drawImage(land,cvs.width,500,cvs.width/2,100)
+			ctx.drawImage(land,cvs.width*3/2,500,cvs.width/2,100)
+				
+			ctx.translate(i%cvs.width+50,50+j)
+			ctx.rotate(Math.PI/15*speed-0.1)
+			ctx.drawImage(bird,bird.width/3*(i%3),0,bird.width/3,bird.height,-22.5,-26,45,52)
+			ctx.restore()
+
+			if(i>190&&(i%160>100||i%160<10)){
+				c=Math.floor(((i-52)%1600)/160)+1
+				c=c==10?0:c
+				if(arr2[c]-j<63.5||arr2[c]-j>136.5){
+					clearInterval(timer)
+					show()
+				}
+				if(i>320){
+					fs.innerHTML=Math.floor(i/160)-1
+				}
+			}
+			if(j>435){
+				clearInterval(timer)
+				show()
+			}
+			speed+=0.01
+			if(speed<0){
+				speed+=0.02
+			}			
+			i++
+			j+=speed
+		}, 8)
+
+	}
+
+	var shade=document.getElementsByClassName("shade")[0];
+	function show(){
+		shade.style.display="block"
+	}
+	cvs.addEventListener("click", function(){
+		speed=-1
+	})
+
+	var imgs=[sky,land,bird,pipeUp,pipeDown]
+
+	function ImageLoad(imgs,fn){
+		var flag=0;
+		for(var i=0;i<imgs.length;i++){
+			imgs[i].onload=function(){
+				flag++
+				if(flag==imgs.length){
+					fn()
+				}
+			}
+		}
+
+	}
+
+	
+	ImageLoad(imgs,fn)
+	
+</script>
