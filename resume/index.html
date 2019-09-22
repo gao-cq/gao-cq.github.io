@@ -302,8 +302,11 @@
     })
  }
 
- var res=f_download()
+ var res=null
  function load(){
+   if(!res){
+    res=f_download()
+   }
     res.then((res)=>{
       res.click()
     })
